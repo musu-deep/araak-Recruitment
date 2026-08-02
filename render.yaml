@@ -3,9 +3,20 @@ services:
     name: araak-recruitment
     runtime: static
     branch: main
-    buildCommand: echo "Araak Recruitment static site ready"
+    buildCommand: node scripts/build-config.mjs
     staticPublishPath: .
     autoDeploy: true
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: STORAGE_BUCKET
+        value: employment-attachments
+      - key: PROCESS_FUNCTION
+        value: process-recruitment-submission
+      - key: ODOO_RECRUITMENT_ALIAS
+        sync: false
     routes:
       - type: rewrite
         source: /*
