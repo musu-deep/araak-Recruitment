@@ -3,7 +3,7 @@ services:
     name: araak-recruitment
     runtime: static
     branch: main
-    buildCommand: node scripts/build-config.mjs
+    buildCommand: node scripts/verify-bundle.mjs && node scripts/build-config.mjs
     staticPublishPath: .
     autoDeploy: true
     envVars:
@@ -15,6 +15,8 @@ services:
         value: employment-attachments
       - key: PROCESS_FUNCTION
         value: process-recruitment-submission
+      - key: PARSE_FUNCTION
+        value: parse-cv
       - key: ODOO_RECRUITMENT_ALIAS
         sync: false
     routes:
