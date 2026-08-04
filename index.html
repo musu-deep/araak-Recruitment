@@ -3,84 +3,48 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#167555">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23167555'/%3E%3Cpath d='M28 68c21-1 38-13 44-38-25 5-39 20-44 38Zm1 2c11-12 23-21 39-29' fill='none' stroke='white' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
-  <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23167555'/%3E%3Cpath d='M28 68c21-1 38-13 44-38-25 5-39 20-44 38Zm1 2c11-12 23-21 39-29' fill='none' stroke='white' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
-  <title>بوابة توظيف اراك</title>
+  <meta name="theme-color" content="#0c6a4d">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230c6a4d'/%3E%3Cpath d='M26 70c24-2 41-17 47-43-27 6-43 22-47 43Zm3 1c12-14 25-24 41-33' fill='none' stroke='white' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+  <title>نموذج طلب توظيف خارجي | مجموعة اراك</title>
   <script src="./runtime-config.js"></script>
   <style>
-    body{margin:0;background:#f3f8f5;font-family:system-ui;text-align:center;padding:15vh 20px;color:#123c31}
-    .spin{width:42px;height:42px;border:4px solid #d9e9e1;border-top-color:#167555;border-radius:50%;margin:0 auto 18px;animation:s 1s linear infinite}
-    @keyframes s{to{transform:rotate(360deg)}}
-    .err{max-width:680px;margin:auto;line-height:1.8}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f3f8f5;color:#17352c;font-family:system-ui;text-align:center;padding:24px}
+    .loader{max-width:620px}.spin{width:48px;height:48px;border:4px solid #d9e9e1;border-top-color:#0c6a4d;border-radius:50%;margin:0 auto 18px;animation:s .85s linear infinite}@keyframes s{to{transform:rotate(360deg)}}
+    .loader p{color:#6f847d}.error{line-height:1.9}.error pre{direction:ltr;text-align:left;white-space:pre-wrap;background:#fff;border:1px solid #dfe9e5;border-radius:12px;padding:12px;font-size:12px}
   </style>
 </head>
 <body>
-  <div class="spin"></div>
-  <p>جارٍ تشغيل بوابة التوظيف…</p>
+  <div class="loader"><div class="spin"></div><strong>جارٍ تشغيل بوابة التوظيف…</strong><p>يتم تحميل النسخة المطوّرة من النموذج.</p></div>
   <script>
     (async()=>{
       try{
         const root=location.hostname.endsWith('github.io')?'/araak-Recruitment/':'/';
-        const files=['chunks/c0.txt','chunks/c1.txt','chunks/c2a.txt','chunks/c2b.txt','chunks/c3.txt','chunks/c4.txt'];
+        const files=['bundle/v2-0.txt','bundle/v2-1.txt','bundle/v2-2.txt'];
         const parts=await Promise.all(files.map(async path=>{
-          const url=root+path;
-          const response=await fetch(url,{cache:'no-store'});
-          if(!response.ok) throw new Error(url+' returned '+response.status);
+          const response=await fetch(root+path,{cache:'no-store'});
+          if(!response.ok) throw new Error(path+' returned '+response.status);
           return response.text();
         }));
+        const bytes=Uint8Array.from(atob(parts.join('').replace(/\s+/g,'')),char=>char.charCodeAt(0));
+        if(!('DecompressionStream' in window)) throw new Error('This browser does not support DecompressionStream');
+        let html=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
 
-        const bytes=Uint8Array.from(atob(parts.join('')),char=>char.charCodeAt(0));
-        if(!('DecompressionStream' in window)) throw new Error('Browser does not support DecompressionStream');
-        const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-        let html=await new Response(stream).text();
-
-        html=html
-          .replace('<h1>خطوتك المهنية<br><em>نحو أثرٍ أكبر</em></h1>','<h1>نموذج<br><em>طلب توظيف خارجي</em></h1>')
-          .replace('نموذج توظيف رقمي رشيق وآمن، مصمم لتقديم بياناتك وخبراتك وشهاداتك وطلب موعد اجتماع في تجربة واحدة متكاملة.','نموذج رقمي لطلب توظيف بمجموعة اراك وشركاتها، مصمم لتقديم بياناتك وخبراتك وشهاداتك وطلب موعد اجتماع أو مقابلة عن بعد.');
-
-        const raw=window.__ARAAK_RUNTIME_CONFIG__||{};
-        const cfg={
-          SUPABASE_URL:raw.SUPABASE_URL||'',
-          SUPABASE_ANON_KEY:raw.SUPABASE_ANON_KEY||'',
-          STORAGE_BUCKET:raw.STORAGE_BUCKET||'employment-attachments',
-          PROCESS_FUNCTION:raw.PROCESS_FUNCTION||'process-recruitment-submission',
-          ODOO_RECRUITMENT_ALIAS:raw.ODOO_RECRUITMENT_ALIAS||''
-        };
-
-        const q=value=>JSON.stringify(String(value||''));
-        const substitutions=[
-          [/SUPABASE_URL\s*:\s*(["'`])[^"'`]*\1/g,'SUPABASE_URL:'+q(cfg.SUPABASE_URL)],
-          [/SUPABASE_ANON_KEY\s*:\s*(["'`])[^"'`]*\1/g,'SUPABASE_ANON_KEY:'+q(cfg.SUPABASE_ANON_KEY)],
-          [/STORAGE_BUCKET\s*:\s*(["'`])[^"'`]*\1/g,'STORAGE_BUCKET:'+q(cfg.STORAGE_BUCKET)],
-          [/PROCESS_FUNCTION\s*:\s*(["'`])[^"'`]*\1/g,'PROCESS_FUNCTION:'+q(cfg.PROCESS_FUNCTION)],
-          [/supabaseUrl\s*:\s*(["'`])[^"'`]*\1/g,'supabaseUrl:'+q(cfg.SUPABASE_URL)],
-          [/supabaseAnonKey\s*:\s*(["'`])[^"'`]*\1/g,'supabaseAnonKey:'+q(cfg.SUPABASE_ANON_KEY)],
-          [/storageBucket\s*:\s*(["'`])[^"'`]*\1/g,'storageBucket:'+q(cfg.STORAGE_BUCKET)],
-          [/processFunction\s*:\s*(["'`])[^"'`]*\1/g,'processFunction:'+q(cfg.PROCESS_FUNCTION)]
-        ];
-        substitutions.forEach(([pattern,replacement])=>{html=html.replace(pattern,replacement)});
-
-        const publicConfig={
-          ...cfg,
-          supabaseUrl:cfg.SUPABASE_URL,
-          supabaseAnonKey:cfg.SUPABASE_ANON_KEY,
-          storageBucket:cfg.STORAGE_BUCKET,
-          processFunction:cfg.PROCESS_FUNCTION
-        };
-
+        const marker='<script defer>\n(() => {';
+        const start=html.indexOf(marker);
+        if(start<0) throw new Error('Application script marker was not found');
+        const end=html.indexOf('</script>',start);
+        if(end<0) throw new Error('Application script ending was not found');
+        const appCode=html.slice(start+marker.length,end);
+        html=html.slice(0,start)+html.slice(end+9);
         const closeScript='</scr'+'ipt>';
-        const configPayload=JSON.stringify(publicConfig).replace(/</g,'\\u003c');
-        const configScript='<script>(()=>{const c='+configPayload+';const merge=n=>window[n]=Object.assign({},window[n]||{},c);["ARAAK_RECRUITMENT_CONFIG","RECRUITMENT_CONFIG","APP_CONFIG","CONFIG","__ENV__"].forEach(merge);window.__ARAAK_RUNTIME_CONFIG__=c;})();'+closeScript;
-        const faviconMarkup='<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' rx=\'22\' fill=\'%23167555\'/%3E%3Cpath d=\'M28 68c21-1 38-13 44-38-25 5-39 20-44 38Zm1 2c11-12 23-21 39-29\' fill=\'none\' stroke=\'white\' stroke-width=\'7\' stroke-linecap=\'round\'/%3E%3C/svg%3E"><link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' rx=\'22\' fill=\'%23167555\'/%3E%3Cpath d=\'M28 68c21-1 38-13 44-38-25 5-39 20-44 38Zm1 2c11-12 23-21 39-29\' fill=\'none\' stroke=\'white\' stroke-width=\'7\' stroke-linecap=\'round\'/%3E%3C/svg%3E">';
-        html=html.replace(/<link[^>]+rel=["'](?:shortcut )?icon["'][^>]*>/gi,'');
-        html=html.replace('</head>',faviconMarkup+configScript+'</head>');
+        const appScript='<script>window.addEventListener("load",()=>{\n(() => {'+appCode+'\n},{once:true});'+closeScript;
+        html=html.replace('</body>',appScript+'</body>');
 
-        document.open();
+        document.open('text/html','replace');
         document.write(html);
         document.close();
       }catch(error){
-        document.body.innerHTML='<div class="err"><h2>تعذر تشغيل بوابة التوظيف</h2><p>حدث خطأ أثناء تحميل أو تهيئة التطبيق. أعد النشر من Render ثم حدّث الصفحة.</p><pre style="white-space:pre-wrap;direction:ltr;text-align:left">'+String(error)+'</pre></div>';
+        document.body.innerHTML='<div class="error"><h2>تعذر تشغيل بوابة التوظيف</h2><p>أعد النشر من Render بعد مسح ذاكرة البناء، ثم حدّث الصفحة.</p><pre>'+String(error)+'</pre></div>';
         console.error(error);
       }
     })();
