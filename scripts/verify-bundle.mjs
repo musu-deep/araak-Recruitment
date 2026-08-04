@@ -2,9 +2,9 @@ import { readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 
 const bundleFiles = [
-  'bundle/v3-0.txt',
-  'bundle/v3-1.txt',
-  'bundle/v3-2.txt'
+  'bundle/v2-0.txt',
+  'bundle/v2-1.txt',
+  'bundle/v2-2.txt'
 ];
 
 const encoded = bundleFiles
