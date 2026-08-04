@@ -12,6 +12,7 @@ const config = {
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY.trim(),
   STORAGE_BUCKET: (process.env.STORAGE_BUCKET || 'employment-attachments').trim(),
   PROCESS_FUNCTION: (process.env.PROCESS_FUNCTION || 'process-recruitment-submission').trim(),
+  PARSE_FUNCTION: (process.env.PARSE_FUNCTION || 'parse-cv').trim(),
   ODOO_RECRUITMENT_ALIAS: (process.env.ODOO_RECRUITMENT_ALIAS || '').trim(),
   BUILD_TIME: new Date().toISOString()
 };
