@@ -1,0 +1,7 @@
+project_id = "araak-recruitment"
+
+[functions.parse-cv]
+verify_jwt = true
+
+[functions.process-recruitment-submission]
+verify_jwt = true
