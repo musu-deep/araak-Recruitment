@@ -38,6 +38,13 @@
         const restoreAfter="      if (data.signature_mode === 'draw' || data.signature_mode === 'typed') setSignatureMode(data.signature_mode);\n      if (data.signature_drawn_data) { const image=new Image(); image.onload=()=>{ const canvas=$('#signatureCanvas'); canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height); state.signatureDrawn=true; }; image.src=data.signature_drawn_data; }\n      state.step = Number.isInteger(data._step) ? Math.min(data._step,10) : 0;\n      goToStep(state.step); updateLocationRules(); updateInterviewFields(); updateApplicantMini(); updateProgress();";
         if(html.includes(restoreBefore)) html=html.replace(restoreBefore,restoreAfter);
 
+        const parseMapBefore="    const map = { first_name:'first_name', father_name:'father_name', family_name:'family_name', email:'email', mobile:'mobile', birth_place:'birth_place', desired_position:'desired_position', department:'department', current_address:'current_address', hobbies:'hobbies' };";
+        const parseMapAfter="    const map = { first_name:'first_name', father_name:'father_name', grand_name:'grand_name', family_name:'family_name', email:'email', mobile:'mobile', birth_date:'birth_date', birth_place:'birth_place', nationality:'nationality', gender:'gender', desired_position:'desired_position', department:'department', current_address:'current_address', hobbies:'hobbies' };";
+        if(html.includes(parseMapBefore)) html=html.replace(parseMapBefore,parseMapAfter);
+        const parseRepeatBefore="    (fields.education || []).forEach(item => addRepeat('education', item));\n    (fields.skills || []).forEach(item => addRepeat('skill', typeof item === 'string' ? { skill_name:item } : item));";
+        const parseRepeatAfter="    (fields.education || []).forEach(item => addRepeat('education', item));\n    (fields.training || []).forEach(item => addRepeat('training', item));\n    (fields.languages || []).forEach(item => addRepeat('language', typeof item === 'string' ? { language_name:item } : item));\n    (fields.skills || []).forEach(item => addRepeat('skill', typeof item === 'string' ? { skill_name:item } : item));";
+        if(html.includes(parseRepeatBefore)) html=html.replace(parseRepeatBefore,parseRepeatAfter);
+
         const marker='<script defer>\n(() => {';
         const start=html.indexOf(marker);
         if(start<0) throw new Error('Application script marker was not found');
