@@ -48,11 +48,11 @@
         const marker='<script defer>\n(() => {';
         const start=html.indexOf(marker);
         if(start<0) throw new Error('Application script marker was not found');
-        const end=html.indexOf('</script>',start);
+        const closeScript='</scr'+'ipt>';
+        const end=html.indexOf(closeScript,start);
         if(end<0) throw new Error('Application script ending was not found');
         const appCode=html.slice(start+marker.length,end);
-        html=html.slice(0,start)+html.slice(end+9);
-        const closeScript='</scr'+'ipt>';
+        html=html.slice(0,start)+html.slice(end+closeScript.length);
         const appScript='<script>window.addEventListener("load",()=>{\n(() => {'+appCode+'\n},{once:true});'+closeScript;
         html=html.replace('</body>',appScript+'</body>');
 
