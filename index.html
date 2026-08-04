@@ -29,6 +29,15 @@
         if(!('DecompressionStream' in window)) throw new Error('This browser does not support DecompressionStream');
         let html=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
 
+        const serializeBefore="    plain.repeat = Object.fromEntries(Object.entries(repeat).map(([type,items]) => [type,Object.values(items)]));\n    return plain;";
+        const serializeAfter="    plain.repeat = Object.fromEntries(Object.entries(repeat).map(([type,items]) => [type,Object.values(items)]));\n    plain.signature_mode = state.signatureMode;\n    if (state.signatureMode === 'draw' && state.signatureDrawn) plain.signature_drawn_data = $('#signatureCanvas').toDataURL('image/png');\n    return plain;";
+        if(!html.includes(serializeBefore)) throw new Error('Signature persistence patch target was not found');
+        html=html.replace(serializeBefore,serializeAfter);
+
+        const restoreBefore="      state.step = Number.isInteger(data._step) ? Math.min(data._step,10) : 0;\n      goToStep(state.step); updateLocationRules(); updateInterviewFields(); updateApplicantMini(); updateProgress();";
+        const restoreAfter="      if (data.signature_mode === 'draw' || data.signature_mode === 'typed') setSignatureMode(data.signature_mode);\n      if (data.signature_drawn_data) { const image=new Image(); image.onload=()=>{ const canvas=$('#signatureCanvas'); canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height); state.signatureDrawn=true; }; image.src=data.signature_drawn_data; }\n      state.step = Number.isInteger(data._step) ? Math.min(data._step,10) : 0;\n      goToStep(state.step); updateLocationRules(); updateInterviewFields(); updateApplicantMini(); updateProgress();";
+        if(html.includes(restoreBefore)) html=html.replace(restoreBefore,restoreAfter);
+
         const marker='<script defer>\n(() => {';
         const start=html.indexOf(marker);
         if(start<0) throw new Error('Application script marker was not found');
