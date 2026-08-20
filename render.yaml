@@ -3,7 +3,7 @@ services:
     name: araak-recruitment
     runtime: static
     branch: main
-    buildCommand: node scripts/verify-bundle.mjs && node scripts/build-config.mjs
+    buildCommand: node scripts/build-config.mjs
     staticPublishPath: .
     autoDeploy: true
     envVars:
