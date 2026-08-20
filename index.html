@@ -3,101 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0c6a4d">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230c6a4d'/%3E%3Cpath d='M26 70c24-2 41-17 47-43-27 6-43 22-47 43Zm3 1c12-14 25-24 41-33' fill='none' stroke='white' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#0d7658">
+  <meta name="description" content="نموذج طلب توظيف خارجي لمجموعة اراك وشركاتها">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230d7658'/%3E%3Cpath d='M27 69c24-2 40-16 46-42-26 6-42 22-46 42Zm3 2c12-14 25-24 40-33' fill='none' stroke='white' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
   <title>نموذج طلب توظيف خارجي | مجموعة اراك</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./app.css">
   <script src="./runtime-config.js"></script>
-  <style>
-    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f3f8f5;color:#17352c;font-family:system-ui;text-align:center;padding:24px}
-    .loader{max-width:620px}.spin{width:48px;height:48px;border:4px solid #d9e9e1;border-top-color:#0c6a4d;border-radius:50%;margin:0 auto 18px;animation:s .85s linear infinite}@keyframes s{to{transform:rotate(360deg)}}
-    .loader p{color:#6f847d}.error{line-height:1.9}.error pre{direction:ltr;text-align:left;white-space:pre-wrap;background:#fff;border:1px solid #dfe9e5;border-radius:12px;padding:12px;font-size:12px}
-  </style>
 </head>
 <body>
-  <div class="loader"><div class="spin"></div><strong>جارٍ تشغيل بوابة التوظيف…</strong><p>يتم تحميل النسخة المطوّرة من النموذج.</p></div>
-  <script>
-    (async()=>{
-      try{
-        const root=location.hostname.endsWith('github.io')?'/araak-Recruitment/':'/';
-        if(!('DecompressionStream' in window)) throw new Error('This browser does not support DecompressionStream');
-
-        const bytesFromBase64=(value,loose=false)=>{
-          let encoded=String(value||'').replace(/\s+/g,'');
-          if(loose) encoded=encoded.replace(/[^A-Za-z0-9+/=]/g,'');
-          while(encoded.length%4) encoded+='=';
-          const binary=atob(encoded);
-          return Uint8Array.from(binary,char=>char.charCodeAt(0));
-        };
-
-        const concatBytes=(arrays)=>{
-          const size=arrays.reduce((sum,item)=>sum+item.length,0);
-          const out=new Uint8Array(size);
-          let offset=0;
-          arrays.forEach(item=>{out.set(item,offset);offset+=item.length});
-          return out;
-        };
-
-        const gunzip=async(bytes)=>new Response(
-          new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))
-        ).text();
-
-        const loadBundle=async()=>{
-          const normalized=await fetch(root+'bundle/v2-normalized.txt',{cache:'no-store'});
-          if(normalized.ok){
-            try{return await gunzip(bytesFromBase64(await normalized.text()));}
-            catch(error){console.warn('Normalized bundle failed; falling back to source chunks.',error)}
-          }
-
-          const files=['bundle/v2-0.txt','bundle/v2-1.txt','bundle/v2-2.txt'];
-          const parts=await Promise.all(files.map(async path=>{
-            const response=await fetch(root+path,{cache:'no-store'});
-            if(!response.ok) throw new Error(path+' returned '+response.status);
-            return response.text();
-          }));
-
-          const attempts=[];
-          attempts.push(()=>bytesFromBase64(parts.join('')));
-          attempts.push(()=>concatBytes(parts.map(part=>bytesFromBase64(part,true))));
-          attempts.push(()=>{
-            let joined=parts.join('').replace(/\s+/g,'').replace(/[^A-Za-z0-9+/=]/g,'');
-            joined=joined.replace(/=/g,'');
-            return bytesFromBase64(joined,true);
-          });
-
-          let lastError;
-          for(const attempt of attempts){
-            try{return await gunzip(attempt());}
-            catch(error){lastError=error}
-          }
-          throw new Error('Unable to decode application bundle: '+String(lastError||'unknown error'));
-        };
-
-        let html=await loadBundle();
-
-        const serializeBefore="    plain.repeat = Object.fromEntries(Object.entries(repeat).map(([type,items]) => [type,Object.values(items)]));\n    return plain;";
-        const serializeAfter="    plain.repeat = Object.fromEntries(Object.entries(repeat).map(([type,items]) => [type,Object.values(items)]));\n    plain.signature_mode = state.signatureMode;\n    if (state.signatureMode === 'draw' && state.signatureDrawn) plain.signature_drawn_data = $('#signatureCanvas').toDataURL('image/png');\n    return plain;";
-        if(html.includes(serializeBefore)) html=html.replace(serializeBefore,serializeAfter);
-
-        const restoreBefore="      state.step = Number.isInteger(data._step) ? Math.min(data._step,10) : 0;\n      goToStep(state.step); updateLocationRules(); updateInterviewFields(); updateApplicantMini(); updateProgress();";
-        const restoreAfter="      if (data.signature_mode === 'draw' || data.signature_mode === 'typed') setSignatureMode(data.signature_mode);\n      if (data.signature_drawn_data) { const image=new Image(); image.onload=()=>{ const canvas=$('#signatureCanvas'); canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height); state.signatureDrawn=true; }; image.src=data.signature_drawn_data; }\n      state.step = Number.isInteger(data._step) ? Math.min(data._step,10) : 0;\n      goToStep(state.step); updateLocationRules(); updateInterviewFields(); updateApplicantMini(); updateProgress();";
-        if(html.includes(restoreBefore)) html=html.replace(restoreBefore,restoreAfter);
-
-        const parseMapBefore="    const map = { first_name:'first_name', father_name:'father_name', family_name:'family_name', email:'email', mobile:'mobile', birth_place:'birth_place', desired_position:'desired_position', department:'department', current_address:'current_address', hobbies:'hobbies' };";
-        const parseMapAfter="    const map = { first_name:'first_name', father_name:'father_name', grand_name:'grand_name', family_name:'family_name', email:'email', mobile:'mobile', birth_date:'birth_date', birth_place:'birth_place', nationality:'nationality', gender:'gender', desired_position:'desired_position', department:'department', current_address:'current_address', hobbies:'hobbies' };";
-        if(html.includes(parseMapBefore)) html=html.replace(parseMapBefore,parseMapAfter);
-
-        const parseRepeatBefore="    (fields.education || []).forEach(item => addRepeat('education', item));\n    (fields.skills || []).forEach(item => addRepeat('skill', typeof item === 'string' ? { skill_name:item } : item));";
-        const parseRepeatAfter="    (fields.education || []).forEach(item => addRepeat('education', item));\n    (fields.training || []).forEach(item => addRepeat('training', item));\n    (fields.languages || []).forEach(item => addRepeat('language', typeof item === 'string' ? { language_name:item } : item));\n    (fields.skills || []).forEach(item => addRepeat('skill', typeof item === 'string' ? { skill_name:item } : item));";
-        if(html.includes(parseRepeatBefore)) html=html.replace(parseRepeatBefore,parseRepeatAfter);
-
-        document.open('text/html','replace');
-        document.write(html);
-        document.close();
-      }catch(error){
-        document.body.innerHTML='<div class="error"><h2>تعذر تشغيل بوابة التوظيف</h2><p>تعذر تحميل حزمة التطبيق. أعد النشر من Render ثم حدّث الصفحة.</p><pre>'+String(error)+'</pre></div>';
-        console.error(error);
-      }
-    })();
-  </script>
+<header class="top">
+  <div class="brand"><span class="mark">✓</span><span class="brand-txt"><b>مجموعة اراك للتنمية</b><span>نموذج التوظيف الدولي</span></span></div>
+  <div class="top-actions"><select id="language" aria-label="لغة النموذج"><option value="ar">العربية</option><option value="en">English</option><option value="fr">Français</option></select><span class="save-dot" id="saveState">حفظ تلقائي</span><button class="ghost" id="print" type="button">⎙</button></div>
+</header>
+<main>
+  <section class="hero" id="hero">
+    <div class="hero-copy"><span class="eyebrow">مجموعة اراك للتنمية وشركاتها</span><h1>نموذج<br><em>طلب توظيف خارجي</em></h1><p>نموذج رقمي لطلب توظيف بمجموعة اراك وشركاتها، مصمم لتقديم بياناتك وخبراتك وشهاداتك وطلب موعد اجتماع أو مقابلة عن بعد.</p><div class="features"><span>✓ حفظ تلقائي</span><span>✓ رفع المستندات</span><span>✓ تعبئة ذكية من السيرة</span><span>✓ طلب مقابلة</span></div></div>
+    <section class="entry"><h2>ابدأ طلبك</h2><div class="entry-sub">أدخل بيانات التواصل للانتقال إلى النموذج</div><div class="field"><label>الاسم الكامل <span class="req">*</span></label><input id="entryName" autocomplete="name" placeholder="مثال: محمد أحمد علي"></div><div class="field"><label>رقم الجوال <span class="req">*</span></label><input id="entryMobile" type="tel" autocomplete="tel" placeholder="+966 5X XXX XXXX" dir="ltr"></div><button class="primary wide" id="start" type="button">الدخول إلى النموذج ←</button><p class="privacy">تستخدم البيانات والمستندات فقط لأغراض دراسة طلب التوظيف ومتابعته.</p></section>
+  </section>
+  <section class="shell hidden" id="shell">
+    <aside class="sidebar">
+      <div class="candidate"><span class="avatar" id="avatar">م</span><div><b id="candidateName">المتقدم</b><small id="candidatePhone">—</small></div></div>
+      <div class="progress-meta"><span>نسبة الإكمال</span><b id="pct">0%</b></div><div class="progress"><i id="bar"></i></div>
+      <nav class="steps" id="steps"></nav>
+      <div class="side-note"><b>مهم قبل الإرسال</b><p>أرفق نسخ الشهادات الدراسية وشهادات الخبرة والسيرة الذاتية، وليس المستندات الأصلية.</p></div>
+    </aside>
+    <section>
+      <div class="stage-head"><div><span class="kicker" id="kicker">القسم 1 من 11</span><h2 id="stageTitle">بيانات الوظيفة</h2><p id="stageDesc"></p></div><span class="badge">مسودة محفوظة</span></div>
+      <form id="form" novalidate><div id="mount"></div></form>
+      <div class="navbox"><button class="secondary" id="prev" type="button">→ السابق</button><small>يمكنك العودة والتعديل في أي وقت</small><button class="primary" id="next" type="button">التالي ←</button></div>
+      <div style="text-align:center;margin-top:12px"><button class="ghost" id="saveDraft" type="button">حفظ المسودة الآن</button></div>
+    </section>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<div class="modal hidden" id="success"><div class="backdrop" id="backdrop"></div><div class="modal-card"><div class="submit-icon">✓</div><h2>تم استلام طلبك</h2><p>تم حفظ الطلب في نظام التوظيف وإحالته للمراجعة.</p><div class="notice"><b>رقم الطلب:</b> <span id="ref"></span></div><div class="modal-actions"><button class="primary" id="closeSuccess" type="button">إغلاق</button></div></div></div>
+<script src="./app.js" defer></script>
 </body>
 </html>
