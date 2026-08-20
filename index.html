@@ -10,17 +10,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./app.css?v=7">
+  <link rel="stylesheet" href="./app.css?v=8">
+  <link rel="stylesheet" href="./ui-enhancements.css?v=8">
   <script src="./runtime-config.js"></script>
 </head>
 <body>
 <header class="top">
-  <div class="brand"><span class="mark">✓</span><span class="brand-txt"><b>مجموعة اراك للتنمية</b><span>نموذج التوظيف الدولي</span></span></div>
-  <div class="top-actions"><select id="language" aria-label="لغة النموذج"><option value="ar">العربية</option><option value="en">English</option><option value="fr">Français</option></select><span class="save-dot" id="saveState">حفظ تلقائي</span><button class="ghost" id="print" type="button">⎙</button></div>
+  <div class="brand brand-with-logo">
+    <img src="./assets/araak-group-logo.webp?v=8" alt="شعار مجموعة اراك للتنمية" class="header-logo">
+    <span class="brand-txt"><b>مجموعة اراك للتنمية</b><span>نموذج التوظيف الدولي</span></span>
+  </div>
+  <div class="top-actions"><select id="language" aria-label="لغة النموذج"><option value="ar">العربية</option><option value="en">English</option><option value="fr">Français</option></select><span class="save-dot" id="saveState">حفظ تلقائي</span><button class="session-end hidden" id="endSession" type="button" title="إنهاء الجلسة">إنهاء الجلسة</button><button class="ghost" id="print" type="button">⎙</button></div>
 </header>
 <main>
   <section class="hero" id="hero">
-    <div class="hero-copy"><span class="eyebrow">مجموعة اراك للتنمية وشركاتها</span><h1>نموذج<br><em>طلب توظيف خارجي</em></h1><p>نموذج رقمي لطلب توظيف بمجموعة اراك وشركاتها، مصمم لتقديم بياناتك وخبراتك وشهاداتك وطلب موعد اجتماع أو مقابلة عن بعد.</p><div class="features"><span>✓ حفظ تلقائي</span><span>✓ رفع المستندات</span><span>✓ تعبئة ذكية من السيرة</span><span>✓ طلب مقابلة</span></div></div>
+    <div class="hero-copy"><div class="hero-logo-wrap"><img src="./assets/araak-group-logo.webp?v=8" alt="مجموعة اراك للتنمية" class="hero-logo"></div><span class="eyebrow">مجموعة اراك للتنمية وشركاتها</span><h1>نموذج<br><em>طلب توظيف خارجي</em></h1><p>نموذج رقمي لطلب توظيف بمجموعة اراك وشركاتها، مصمم لتقديم بياناتك وخبراتك وشهاداتك وطلب موعد اجتماع أو مقابلة عن بعد.</p><div class="features"><span>✓ حفظ تلقائي</span><span>✓ رفع المستندات</span><span>✓ تعبئة ذكية من السيرة</span><span>✓ طلب مقابلة</span></div></div>
     <section class="entry"><h2>ابدأ طلبك</h2><div class="entry-sub">أدخل بيانات التواصل للانتقال إلى النموذج</div><div class="field"><label>الاسم الكامل <span class="req">*</span></label><input id="entryName" autocomplete="name" placeholder="مثال: محمد أحمد علي"></div><div class="field"><label>رقم الجوال <span class="req">*</span></label><input id="entryMobile" type="tel" autocomplete="tel" placeholder="+966 5X XXX XXXX" dir="ltr"></div><button class="primary wide" id="start" type="button">الدخول إلى النموذج ←</button><p class="privacy">تستخدم البيانات والمستندات فقط لأغراض دراسة طلب التوظيف ومتابعته.</p></section>
   </section>
   <section class="shell hidden" id="shell">
@@ -40,6 +44,7 @@
 </main>
 <div class="toast" id="toast"></div>
 <div class="modal hidden" id="success"><div class="backdrop" id="backdrop"></div><div class="modal-card"><div class="submit-icon">✓</div><h2>تم استلام طلبك</h2><p>تم حفظ الطلب في نظام التوظيف وإحالته للمراجعة.</p><div class="notice"><b>رقم الطلب:</b> <span id="ref"></span></div><div class="modal-actions"><button class="primary" id="closeSuccess" type="button">إغلاق</button></div></div></div>
-<script src="./app.js?v=7" defer onerror="document.getElementById('start').disabled=true;document.getElementById('start').textContent='تعذر تحميل التطبيق — أعد تحديث الصفحة';"></script>
+<script src="./app.js?v=8" defer onerror="document.getElementById('start').disabled=true;document.getElementById('start').textContent='تعذر تحميل التطبيق — أعد تحديث الصفحة';"></script>
+<script src="./session-controls.js?v=8" defer></script>
 </body>
 </html>
