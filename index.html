@@ -19,24 +19,64 @@
     (async()=>{
       try{
         const root=location.hostname.endsWith('github.io')?'/araak-Recruitment/':'/';
-        const bundlePath='bundle/v2-normalized.txt';
-        const response=await fetch(root+bundlePath,{cache:'no-store'});
-        if(!response.ok) throw new Error(bundlePath+' returned '+response.status);
-
-        const encoded=(await response.text()).replace(/\s+/g,'');
-        if(!/^[A-Za-z0-9+/]*={0,2}$/.test(encoded) || encoded.length%4!==0){
-          throw new Error('The normalized application bundle is not valid Base64');
-        }
-
-        const binary=atob(encoded);
-        const bytes=Uint8Array.from(binary,char=>char.charCodeAt(0));
         if(!('DecompressionStream' in window)) throw new Error('This browser does not support DecompressionStream');
-        let html=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+
+        const bytesFromBase64=(value,loose=false)=>{
+          let encoded=String(value||'').replace(/\s+/g,'');
+          if(loose) encoded=encoded.replace(/[^A-Za-z0-9+/=]/g,'');
+          while(encoded.length%4) encoded+='=';
+          const binary=atob(encoded);
+          return Uint8Array.from(binary,char=>char.charCodeAt(0));
+        };
+
+        const concatBytes=(arrays)=>{
+          const size=arrays.reduce((sum,item)=>sum+item.length,0);
+          const out=new Uint8Array(size);
+          let offset=0;
+          arrays.forEach(item=>{out.set(item,offset);offset+=item.length});
+          return out;
+        };
+
+        const gunzip=async(bytes)=>new Response(
+          new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))
+        ).text();
+
+        const loadBundle=async()=>{
+          const normalized=await fetch(root+'bundle/v2-normalized.txt',{cache:'no-store'});
+          if(normalized.ok){
+            try{return await gunzip(bytesFromBase64(await normalized.text()));}
+            catch(error){console.warn('Normalized bundle failed; falling back to source chunks.',error)}
+          }
+
+          const files=['bundle/v2-0.txt','bundle/v2-1.txt','bundle/v2-2.txt'];
+          const parts=await Promise.all(files.map(async path=>{
+            const response=await fetch(root+path,{cache:'no-store'});
+            if(!response.ok) throw new Error(path+' returned '+response.status);
+            return response.text();
+          }));
+
+          const attempts=[];
+          attempts.push(()=>bytesFromBase64(parts.join('')));
+          attempts.push(()=>concatBytes(parts.map(part=>bytesFromBase64(part,true))));
+          attempts.push(()=>{
+            let joined=parts.join('').replace(/\s+/g,'').replace(/[^A-Za-z0-9+/=]/g,'');
+            joined=joined.replace(/=/g,'');
+            return bytesFromBase64(joined,true);
+          });
+
+          let lastError;
+          for(const attempt of attempts){
+            try{return await gunzip(attempt());}
+            catch(error){lastError=error}
+          }
+          throw new Error('Unable to decode application bundle: '+String(lastError||'unknown error'));
+        };
+
+        let html=await loadBundle();
 
         const serializeBefore="    plain.repeat = Object.fromEntries(Object.entries(repeat).map(([type,items]) => [type,Object.values(items)]));\n    return plain;";
         const serializeAfter="    plain.repeat = Object.fromEntries(Object.entries(repeat).map(([type,items]) => [type,Object.values(items)]));\n    plain.signature_mode = state.signatureMode;\n    if (state.signatureMode === 'draw' && state.signatureDrawn) plain.signature_drawn_data = $('#signatureCanvas').toDataURL('image/png');\n    return plain;";
-        if(!html.includes(serializeBefore)) throw new Error('Signature persistence patch target was not found');
-        html=html.replace(serializeBefore,serializeAfter);
+        if(html.includes(serializeBefore)) html=html.replace(serializeBefore,serializeAfter);
 
         const restoreBefore="      state.step = Number.isInteger(data._step) ? Math.min(data._step,10) : 0;\n      goToStep(state.step); updateLocationRules(); updateInterviewFields(); updateApplicantMini(); updateProgress();";
         const restoreAfter="      if (data.signature_mode === 'draw' || data.signature_mode === 'typed') setSignatureMode(data.signature_mode);\n      if (data.signature_drawn_data) { const image=new Image(); image.onload=()=>{ const canvas=$('#signatureCanvas'); canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height); state.signatureDrawn=true; }; image.src=data.signature_drawn_data; }\n      state.step = Number.isInteger(data._step) ? Math.min(data._step,10) : 0;\n      goToStep(state.step); updateLocationRules(); updateInterviewFields(); updateApplicantMini(); updateProgress();";
@@ -54,7 +94,7 @@
         document.write(html);
         document.close();
       }catch(error){
-        document.body.innerHTML='<div class="error"><h2>تعذر تشغيل بوابة التوظيف</h2><p>أعد النشر من Render بعد مسح ذاكرة البناء، ثم حدّث الصفحة.</p><pre>'+String(error)+'</pre></div>';
+        document.body.innerHTML='<div class="error"><h2>تعذر تشغيل بوابة التوظيف</h2><p>تعذر تحميل حزمة التطبيق. أعد النشر من Render ثم حدّث الصفحة.</p><pre>'+String(error)+'</pre></div>';
         console.error(error);
       }
     })();
